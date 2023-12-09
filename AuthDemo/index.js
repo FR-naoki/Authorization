@@ -4,6 +4,7 @@ const User = require('./models/user');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
+
 mongoose.connect('mongodb://127.0.0.1:27017/authDemo',
     { useNewUrlParser: true, 
       useUnifiedTopology: true, 
@@ -24,6 +25,10 @@ app.set(`views`, `views`);
 
 app.use(express.urlencoded({extended: true}));
 
+app.get('/', (req, res) => {
+    res.send(`ホームページ！！！`);
+});
+
 app.get('/register', (req, res) => {
     res.render(`register`);
 });
@@ -31,7 +36,13 @@ app.get('/register', (req, res) => {
 app.post('/register',async (req, res) => {
     const {username, password} = req.body;
     const hash = await bcrypt.hash(password, 12);
-    res.send(hash);
+    const user = new User({
+        username,
+        // username: username,の省略表記
+        password: hash
+    });
+    await user.save();
+    res.redirect(`/`);
 });
 
 app.get('/secret', (req, res) => {
